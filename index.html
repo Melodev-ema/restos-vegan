@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vegan entre Bormes et Garéoult</title>
+<title>Restos vegan à mi-chemin</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout : graphique « minutes depuis Bormes × minutes depuis Garéoult », filtres, fiches à cocher, flyer PNG en bas */
+/* Layout : graphique « minutes depuis chaque point de départ », filtres, fiches à cocher, flyer PNG en bas */
 :root {
   --bg: #f3f5ef;
   --surface: #ffffff;
@@ -79,6 +79,10 @@ h1 em { font-style: normal; color: var(--mimosa); }
 .hero > * { position: relative; z-index: 1; max-width: 62ch; }
 .eyebrow { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mimosa); }
 .hero .lede { color: var(--hero-muted); font-size: 1.05rem; margin: 0; }
+.starts { display: flex; flex-wrap: wrap; gap: 10px; }
+.starts label { flex: 1 1 200px; display: grid; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--hero-muted); }
+.starts select { font: inherit; font-size: 1rem; font-weight: 700; padding: 10px 12px; border-radius: 10px; border: 0; background: var(--surface); color: var(--ink); width: 100%; min-width: 0; }
+.coverage { margin: 0; font-size: 0.82rem; color: var(--hero-muted); }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 150px)); gap: 10px; margin: 6px 0 0; }
 .stats div { background: var(--hero-tile); border-radius: 14px; padding: 10px 14px; min-width: 0; }
 .stats dt { font-size: 0.75rem; color: var(--hero-muted); }
@@ -226,9 +230,14 @@ input[type="search"] { flex: 1 1 220px; }
 
 <div class="wrap">
   <header class="hero">
-    <p class="eyebrow">Var · Bormes-les-Mimosas ↔ Garéoult</p>
+    <p class="eyebrow">Restos vegan dans le Var</p>
     <h1>Manger vegan <em>à mi-chemin</em></h1>
-    <p class="lede">Des restos où chacun roule au plus 40 minutes, avec les plats vegan qu'on y trouve vraiment. Filtrez, validez, puis partagez le flyer en bas de page.</p>
+    <p class="lede">Choisissez vos deux points de départ : la page trouve les restos à mi-chemin, avec les plats vegan qu'on y trouve vraiment.</p>
+    <div class="starts">
+      <label for="fromA">Départ 1<select id="fromA"></select></label>
+      <label for="fromB">Départ 2<select id="fromB"></select></label>
+    </div>
+    <p class="coverage">Les adresses couvrent surtout l'ouest et le sud du Var : Toulon, Hyères, Le Lavandou, Cuers, Rocbaron, Brignoles.</p>
     <dl class="stats">
       <div><dt>Adresses à portée</dt><dd id="st-n">–</dd></div>
       <div><dt>100 % vegan</dt><dd id="st-l1">–</dd></div>
@@ -240,10 +249,10 @@ input[type="search"] { flex: 1 1 220px; }
     <div class="chart" id="chart"></div>
     <div>
       <h2>Qui roule combien ?</h2>
-      <p>Chaque point est une ville. Plus il est à droite, plus c'est loin depuis Bormes ; plus il est haut, plus c'est loin depuis Garéoult. Le cadre jaune montre le temps maximum choisi.</p>
+      <p>Chaque point est une ville. Plus il est à droite, plus c'est loin du départ 1 ; plus il est haut, plus c'est loin du départ 2. Le cadre jaune montre le temps maximum choisi.</p>
       <div class="slider">
         <label for="max">Trajet max pour chacun : <output id="maxOut">40 min</output></label>
-        <input type="range" id="max" min="20" max="65" step="5" value="40">
+        <input type="range" id="max" min="20" max="120" step="5" value="40">
       </div>
     </div>
   </section>
@@ -336,22 +345,21 @@ input[type="search"] { flex: 1 1 220px; }
     <div class="flyer-out"><img id="flyerImg" alt="Aperçu du flyer"></div>
   </section>
 
-  <p class="disclaimer">Infos relevées le 30 octobre 2026 sur les sites et cartes des restaurants, les offices de tourisme, HappyCow, TheFork, Tripadvisor et Uber Eats. Les prix sont ceux affichés à cette date. Les temps de trajet sont des estimations hors bouchons (l'A57 autour de La Valette sature aux heures de pointe). Les cartes et les horaires changent souvent : appelez avant de partir et précisez « vegan, sans produits laitiers ni œufs ».</p>
+  <p class="disclaimer">Infos relevées le 30 octobre 2026 sur les sites et cartes des restaurants, les offices de tourisme, HappyCow, TheFork, Tripadvisor et Uber Eats. Les prix sont ceux affichés à cette date. Les temps de trajet sont calculés entre les mairies, hors bouchons, avec OSRM et les données OpenStreetMap ; communes : geo.api.gouv.fr. Comptez plus aux heures de pointe, surtout sur l'A57. Les cartes et les horaires changent souvent : appelez avant de partir et précisez « vegan, sans produits laitiers ni œufs ».</p>
 </div>
 
 <script>
 const LEVELS = { l1: "100 % vegan", l2: "Plats vegan à la carte", l3: "Vegan à composer" };
 const ZONES = {
   cuers: "Cuers", garde: "La Garde · La Valette",
-  hyeres: "Hyères", toulon: "Toulon", bormes: "Côté Bormes", gareoult: "Côté Garéoult"
+  hyeres: "Hyères", toulon: "Toulon", bormes: "Le Lavandou · La Londe", gareoult: "Rocbaron · Brignoles"
 };
 const TYPES = { resto: "Restaurant", snack: "Snack", pouce: "Sur le pouce" };
 const SEATS = { in: "Salle intérieure", out: "Terrasse uniquement", both: "Salle + terrasse", none: "À emporter" };
 
-// mB / mG = minutes de route estimées depuis Bormes / depuis Garéoult
 // dishes = plats vegan nommés par la source (n = plat, d = détail, p = prix) ; ask = quand la source ne nomme pas les plats
 const PLACES = [
-  { id: "veggy", name: "Le Veggy Van", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l1", type: "pouce", seat: "none", price: "€", hours: "Tous les soirs, 18h–21h", midi: false, soir: true,
+  { id: "veggy", name: "Le Veggy Van", town: "La Valette-du-Var", zone: "garde", level: "l1", type: "pouce", seat: "none", price: "€", hours: "Tous les soirs, 18h–21h", midi: false, soir: true,
     dishes: [
       { n: "Burger falafel + frites maison", d: "Sauce blanche vegan au sésame, crudités", p: "12 €" },
       { n: "Burger Popeye + frites maison", d: "Steak de céréales, pesto, crème vegan ail et fines herbes", p: "14 €" },
@@ -362,12 +370,12 @@ const PLACES = [
     tags: ["100 % bio", "Pain maison", "Le soir"], tel: "24 av. Mirasouléou",
     note: "Ouvert le soir (18h–21h selon Uber Eats).",
     src: "https://www.ubereats.com/fr-en/store/le-veggy-van-la-valette/2IEFkTUIRGe7dGEACl9MGw" },
-  { id: "tooktook", name: "Took Took Thaï", town: "La Garde", zone: "garde", mB: 30, mG: 35, level: "l2", type: "snack", seat: "out", price: "€", hours: "Mar–sam, matin et midi", midi: true, soir: false,
+  { id: "tooktook", name: "Took Took Thaï", town: "La Garde", zone: "garde", level: "l2", type: "snack", seat: "out", price: "€", hours: "Mar–sam, matin et midi", midi: true, soir: false,
     dishes: [{ n: "Pad thaï vegan" }, { n: "Curries vegan" }],
     tags: ["Food truck", "Thaï", "À emporter"], tel: "06 03 59 67 74",
     note: "Camion : vérifiez son emplacement sur ses réseaux. Mar–sam le matin et le midi (selon HappyCow).",
     src: "https://www.happycow.net/europe/france/la_garde/print" },
-  { id: "pokawa", name: "Pokawa", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l3", type: "snack", seat: "both", price: "€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
+  { id: "pokawa", name: "Pokawa", town: "La Valette-du-Var", zone: "garde", level: "l3", type: "snack", seat: "both", price: "€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
     dishes: [
       { n: "Poké bowl à composer", d: "Avec tofu, falafels ou « chick'en » végétal" },
       { n: "Chia pudding au lait de coco" },
@@ -377,7 +385,7 @@ const PLACES = [
     tags: ["Poké", "Chaîne", "Parking gratuit"], tel: "Av. de l'Université",
     note: "Infos vegan de la chaîne (HappyCow). Note 4,5/5 sur près de 1 000 avis.",
     src: "https://www.happycow.net/reviews/pokawa-poke-bowls-rennes-525340" },
-  { id: "mezze", name: "L'Univers Mezze", town: "La Garde", zone: "garde", mB: 30, mG: 34, level: "l2", sure: false, type: "resto", seat: "both", price: "€", hours: "Lun–ven 11h30–14h et 18h–20h, sam midi", midi: true, soir: true,
+  { id: "mezze", name: "L'Univers Mezze", town: "La Garde", zone: "garde", level: "l2", sure: false, type: "resto", seat: "both", price: "€", hours: "Lun–ven 11h30–14h et 18h–20h, sam midi", midi: true, soir: true,
     dishes: [
       { n: "Falafels maison", d: "Très appréciés dans les avis" },
       { n: "Taboulé libanais" },
@@ -387,7 +395,7 @@ const PLACES = [
     tags: ["Libanais", "Terrasse ombragée", "Traiteur"], tel: "04 94 42 36 37",
     note: "290 av. Robespierre. Lun–ven 11h30–14h et 18h–20h, sam midi. Réservation conseillée.",
     src: "https://luniversmezze.fr/" },
-  { id: "nachos", name: "Nachos", town: "La Valette-du-Var (L'Avenue 83)", zone: "garde", mB: 30, mG: 33, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 11h30–22h", midi: true, soir: true,
+  { id: "nachos", name: "Nachos", town: "La Valette-du-Var (L'Avenue 83)", zone: "garde", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 11h30–22h", midi: true, soir: true,
     dishes: [
       { n: "Fajita, bowl ou tacos au chili végétarien", d: "Chili au soja bio, riz, haricots, oignons et poivrons grillés" },
       { n: "Guacamole maison et salsas" },
@@ -397,7 +405,7 @@ const PLACES = [
     tags: ["Mexicain", "Ouvert 7j/7", "À emporter"], tel: "04 94 23 27 86",
     note: "Centre commercial L'Avenue 83, à la limite de La Garde. Tous les jours 11h30–22h.",
     src: "https://nachos.fr/notre-carte/" },
-  { id: "pitaya", name: "Pitaya", town: "La Valette-du-Var (L'Avenue 83)", zone: "garde", mB: 30, mG: 33, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 11h30–22h30", midi: true, soir: true,
+  { id: "pitaya", name: "Pitaya", town: "La Valette-du-Var (L'Avenue 83)", zone: "garde", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 11h30–22h30", midi: true, soir: true,
     dishes: [
       { n: "Wok au tofu", d: "Pad thaï, nouilles ou riz sautés, avec le tofu en protéine" },
       { n: "Plats végétariens de la carte", d: "Option végé saluée dans les avis" }
@@ -406,7 +414,7 @@ const PLACES = [
     tags: ["Thaï street food", "Ouvert 7j/7", "Livraison"], tel: "04 22 67 21 82",
     note: "L'Avenue 83, à côté de Nachos. Tous les jours 11h30–22h30. Il y en a aussi un à Hyères (Centr'Azur).",
     src: "https://www.lavenue-83.com/restaurants/pitaya" },
-  { id: "mcdo", name: "McDonald's", town: "La Garde", zone: "garde", mB: 30, mG: 34, level: "l3", type: "snack", seat: "both", price: "€", hours: "Tous les jours, tard le soir", midi: true, soir: true,
+  { id: "mcdo", name: "McDonald's", town: "La Garde", zone: "garde", level: "l3", type: "snack", seat: "both", price: "€", hours: "Tous les jours, tard le soir", midi: true, soir: true,
     dishes: [
       { n: "Veggie McPlant Nuggets", d: "Protéines de pois et de blé (Beyond Meat)" },
       { n: "Frites ou Deluxe Potatoes" },
@@ -416,36 +424,36 @@ const PLACES = [
     tags: ["Fast-food", "Drive", "Tard le soir"], tel: "81 av. Antoine Becquerel",
     note: "Plusieurs McDo à La Garde (av. Becquerel, chemin des Plantades). Option de dépannage.",
     src: "https://www.mcdonalds.fr/nos-produits/nos-burgers/4-veggie-mcplant-nuggets" },
-  { id: "columbus", name: "Columbus Café", town: "La Valette-du-Var (Grand Var)", zone: "garde", mB: 30, mG: 33, level: "l2", type: "snack", seat: "in", price: "€", hours: "Lun–sam 8h30–20h", midi: true, soir: false,
+  { id: "columbus", name: "Columbus Café", town: "La Valette-du-Var (Grand Var)", zone: "garde", level: "l2", type: "snack", seat: "in", price: "€", hours: "Lun–sam 8h30–20h", midi: true, soir: false,
     dishes: [{ n: "Buddha bowl falafels, houmous et quinoa", d: "Indiqué « recette vegan » sur la carte" }],
     tags: ["Coffee shop", "Centre commercial"], tel: "98 Centre Grand Var",
     note: "Lun–sam 8h30–20h. Pratique pour un midi rapide.",
     src: "https://www.columbuscafe.com/boutique/la-valette-du-var-centre-commercial-grand-var" },
-  { id: "ikea", name: "Restaurant IKEA", town: "La Valette-du-Var (Valgora)", zone: "garde", mB: 30, mG: 32, level: "l3", type: "snack", seat: "in", price: "€", hours: "Ceux du magasin (fermeture vers 20h)", midi: true, soir: false,
+  { id: "ikea", name: "Restaurant IKEA", town: "La Valette-du-Var (Valgora)", zone: "garde", level: "l3", type: "snack", seat: "in", price: "€", hours: "Ceux du magasin (fermeture vers 20h)", midi: true, soir: false,
     dishes: [{ n: "Boulettes végétales", d: "Protéine de pois, avoine, pomme de terre, oignon, pomme" }],
     ask: "IKEA confirme : aucun ingrédient animal. Mais l'assiette est servie avec une sauce à la crème : demandez-la sans sauce.",
     tags: ["Petit prix", "Parking", "Cafétéria"], tel: "ZAC Valgora",
     note: "Option de dépannage, très bon marché.",
     src: "https://www.ikea.com/fr/fr/p/huvudroll-boulettes-vegetales-surgele-20483592" },
-  { id: "dijo", name: "Dijo", town: "La Garde", zone: "garde", mB: 30, mG: 35, level: "l2", sure: false, type: "resto", seat: "both", price: "€€", hours: "Midi et soir (jours à vérifier)", midi: true, soir: true,
+  { id: "dijo", name: "Dijo", town: "La Garde", zone: "garde", level: "l2", sure: false, type: "resto", seat: "both", price: "€€", hours: "Midi et soir (jours à vérifier)", midi: true, soir: true,
     dishes: [],
     ask: "Options vegan signalées, mais la carte change : plats du jour à voir sur place.",
     tags: ["Bistrot", "Bière artisanale", "4,5/5"], tel: "09 86 67 32 56",
     note: "15 av. Baptistin Autran. Midi et soir.",
     src: "https://www.tripadvisor.com/Restaurant_Review-g1813663-d10903573-Reviews-Dijo-La_Garde_Var_Provence_Alpes_Cote_d_Azur.html" },
-  { id: "saladco", name: "Salad&Co", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l3", sure: false, type: "snack", seat: "in", price: "€€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
+  { id: "saladco", name: "Salad&Co", town: "La Valette-du-Var", zone: "garde", level: "l3", sure: false, type: "snack", seat: "in", price: "€€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
     dishes: [],
     ask: "Options vegan signalées : salades et bowls à composer, recettes à voir sur place.",
     tags: ["Healthy", "Chaîne", "Midi et soir"], tel: "138 av. de l'Université",
     note: "Pratique pour un repas rapide et sans surprise.",
     src: "https://www.tripadvisor.com/Restaurant_Review-g1080055-d12862959-Reviews-Salad_CO_la_Valette_du_Var-La_Valette_du_Var_French_Riviera_Cote_d_Azur_Provenc.html" },
-  { id: "bouchon", name: "Le Bouchon", town: "Cuers", zone: "cuers", mB: 32, mG: 22, level: "l2", sure: false, type: "resto", seat: "both", price: "€€", hours: "Mar–sam 9h–23h", midi: true, soir: true,
+  { id: "bouchon", name: "Le Bouchon", town: "Cuers", zone: "cuers", level: "l2", sure: false, type: "resto", seat: "both", price: "€€", hours: "Mar–sam 9h–23h", midi: true, soir: true,
     dishes: [],
     ask: "Un annuaire indique « plats végétaliens », mais la carte en ligne ne le précise pas : demandez au moment de réserver.",
     tags: ["Bistrot", "Cave à vins", "Rooftop"], tel: "40 allée des Pivoines",
     note: "Très bien noté (4,8/5).",
     src: "https://www.ot-lelavandou.fr/restaurants-lelavandou/le-bouchon" },
-  { id: "popotes", name: "Popote's", town: "Hyères (ZI Saint-Martin)", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "snack", seat: "out", price: "€", hours: "Mar–ven 8h–16h30, sam 9h–16h", midi: true, soir: false,
+  { id: "popotes", name: "Popote's", town: "Hyères (ZI Saint-Martin)", zone: "hyeres", level: "l2", type: "snack", seat: "out", price: "€", hours: "Mar–ven 8h–16h30, sam 9h–16h", midi: true, soir: false,
     dishes: [
       { n: "Pâtisseries 100 % vegan", d: "Sans sucre raffiné, sur commande 72 h à l'avance" },
       { n: "Bowls, burgers, salades et plats chauds", d: "Cuisine végétarienne, en version vegan sur demande" }
@@ -453,7 +461,7 @@ const PLACES = [
     tags: ["Fait maison", "Bio", "Surtout à emporter"], tel: "06 13 63 23 65",
     note: "Mar–ven 8h–16h30, sam 9h–16h. Peu de places assises.",
     src: "https://www.popotes-hyeres.com/" },
-  { id: "breakin", name: "Break'in Bowl", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l3", type: "snack", seat: "in", price: "€", hours: "Lun–sam midi, mar–dim soir", midi: true, soir: true,
+  { id: "breakin", name: "Break'in Bowl", town: "Hyères", zone: "hyeres", level: "l3", type: "snack", seat: "in", price: "€", hours: "Lun–sam midi, mar–dim soir", midi: true, soir: true,
     dishes: [
       { n: "Bowl à composer", d: "Nuggets végétaux, falafels ou houmous en protéine" },
       { n: "Chia pudding" }
@@ -461,25 +469,25 @@ const PLACES = [
     tags: ["Poké", "Livraison", "À emporter"], tel: "09 86 49 03 81",
     note: "1 av. Olbius Riquier. Lun–sam midi, mar–dim soir.",
     src: "https://www.happycow.net/europe/france/hyeres/print" },
-  { id: "people", name: "Le People", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Midi en semaine, soir à vérifier", midi: true, soir: null,
+  { id: "people", name: "Le People", town: "Hyères", zone: "hyeres", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Midi en semaine, soir à vérifier", midi: true, soir: null,
     dishes: [],
     ask: "Sélection de plats vegan créée par le chef, renouvelée à chaque saison : à voir sur la carte du moment.",
     tags: ["Bistronomie", "Terrasse", "Climatisé"], tel: "11 av. Pierre Renaudel",
     note: "Quartier de la gare. Plats du jour du lundi au vendredi.",
     src: "https://mer.audemar.com/lien-restaurant+hyeres+le+people-131" },
-  { id: "vague", name: "La Vague", town: "Hyères (port)", zone: "hyeres", mB: 28, mG: 42, level: "l2", type: "resto", seat: "both", price: "€€", hours: "8h–15h, fermé mar et mer", midi: true, soir: false,
+  { id: "vague", name: "La Vague", town: "Hyères (port)", zone: "hyeres", level: "l2", type: "resto", seat: "both", price: "€€", hours: "8h–15h, fermé mar et mer", midi: true, soir: false,
     dishes: [{ n: "Smoothie bowls" }, { n: "Avocado toast" }],
     ask: "Le vegan n'est pas indiqué sur la carte : précisez sans lait ni œufs.",
     tags: ["Brunch", "Sur le port", "Fait maison"], tel: "6 av. de la Gavine",
     note: "8h–15h, fermé mardi et mercredi.",
     src: "https://www.provencemed.com/restaurant/la-vague-5584222" },
 
-  { id: "instant", name: "L'Instant Thé", town: "Toulon", zone: "toulon", mB: 42, mG: 38, level: "l1", type: "snack", seat: "both", price: "€", hours: "Mar 14h–19h, mer–sam 12h–19h", midi: true, soir: false,
+  { id: "instant", name: "L'Instant Thé", town: "Toulon", zone: "toulon", level: "l1", type: "snack", seat: "both", price: "€", hours: "Mar 14h–19h, mer–sam 12h–19h", midi: true, soir: false,
     dishes: [{ n: "Risotto" }, { n: "Panisse et légumes rôtis" }, { n: "Cakes, brownies et cookies" }],
     tags: ["100 % vegan", "Bio", "Sans gluten"], tel: "09 55 33 23 16",
     note: "5 rue Richard Andrieu. Mar 14h–19h, mer–sam 12h–19h.",
     src: "https://www.happycow.net/europe/france/toulon/print" },
-  { id: "florabio", name: "Chez Florabio", town: "Toulon", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Midi mar–sam, soir jeu–sam", midi: true, soir: true,
+  { id: "florabio", name: "Chez Florabio", town: "Toulon", zone: "toulon", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Midi mar–sam, soir jeu–sam", midi: true, soir: true,
     dishes: [
       { n: "Composition 100 % végétale (midi)", p: "20 €" },
       { n: "Dégustation végétale à l'aveugle (soir)", p: "35 €" }
@@ -487,17 +495,17 @@ const PLACES = [
     tags: ["Bio", "Local", "Sur réservation"], tel: "06 71 47 28 43",
     note: "Midi du mardi au samedi, soir du jeudi au samedi. Réservation par SMS conseillée.",
     src: "https://lebistrotdeflorabio.com/catalogue/produit/186-la-carte-de-florabio-restaurant-bio-a-toulon.htm" },
-  { id: "sembilan", name: "Sembilan", town: "Toulon", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "resto", seat: "in", price: "€€", hours: null, midi: null, soir: null,
+  { id: "sembilan", name: "Sembilan", town: "Toulon", zone: "toulon", level: "l2", type: "resto", seat: "in", price: "€€", hours: null, midi: null, soir: null,
     dishes: [{ n: "Curry de tofu" }, { n: "Nasi goreng" }, { n: "Cocotte aigre-douce" }],
     tags: ["Malaisien", "Vegan indiqué"], tel: "06 70 82 91 73",
     note: "9 rue César Vezzani.",
     src: "https://www.happycow.net/europe/france/toulon/print" },
-  { id: "tomo", name: "Tomo Tomo", town: "Toulon", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: null, midi: null, soir: null,
+  { id: "tomo", name: "Tomo Tomo", town: "Toulon", zone: "toulon", level: "l2", type: "resto", seat: "both", price: "€€", hours: null, midi: null, soir: null,
     dishes: [{ n: "Gyozas aux légumes" }, { n: "Ramen aux légumes", d: "Préciser sans œuf" }, { n: "Rice bowl" }],
     tags: ["Izakaya japonais", "Terrasse"], tel: "04 22 91 68 01",
     note: "Angle rue Gimelli et rue Dumont d'Urville. Réservation conseillée.",
     src: "https://www.happycow.net/europe/france/toulon/print" },
-  { id: "noisette", name: "Café Noisette", town: "Toulon", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "snack", seat: "both", price: "€", hours: "Mar–dim 9h–17h", midi: true, soir: false,
+  { id: "noisette", name: "Café Noisette", town: "Toulon", zone: "toulon", level: "l2", type: "snack", seat: "both", price: "€", hours: "Mar–dim 9h–17h", midi: true, soir: false,
     dishes: [
       { n: "Tartine au levain", d: "Confiture maison, yaourt soja ou beurre végétal" },
       { n: "Mousse d'avocat à la crème de coco" },
@@ -508,12 +516,12 @@ const PLACES = [
     note: "9 rue César Vezzani. Mar–dim 9h–17h.",
     src: "https://www.happycow.net/europe/france/toulon/print" },
 
-  { id: "pavillon", name: "Pavillon Thaï", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mar–sam 12h–13h30 et 19h–21h30", midi: true, soir: true,
+  { id: "pavillon", name: "Pavillon Thaï", town: "Hyères", zone: "hyeres", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mar–sam 12h–13h30 et 19h–21h30", midi: true, soir: true,
     dishes: [{ n: "Pad thaï aux légumes" }, { n: "Curry vert aux légumes" }, { n: "Légumes sautés" }],
     tags: ["Thaï", "Terrasse"], tel: "04 94 23 08 10",
     note: "Mar–sam 12h–13h30 et 19h–21h30.",
     src: "https://www.happycow.net/europe/france/hyeres/print" },
-  { id: "bagus", name: "Bagus Kafé", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "snack", seat: "both", price: "€", hours: "Lun–sam 8h–18h", midi: true, soir: false,
+  { id: "bagus", name: "Bagus Kafé", town: "Hyères", zone: "hyeres", level: "l2", type: "snack", seat: "both", price: "€", hours: "Lun–sam 8h–18h", midi: true, soir: false,
     dishes: [
       { n: "Salade thaï au tofu fumé bio", d: "Carottes, chou, soja, edamame, vermicelles, cacahuètes", p: "8,50 €" },
       { n: "Chia pudding", d: "Lait de coco et de riz, coulis, muesli maison", p: "4 €" },
@@ -523,30 +531,30 @@ const PLACES = [
     tags: ["Bio", "Journée", "À emporter"], tel: "04 94 23 74 95",
     note: "Lun–sam 8h–18h. Vegan indiqué sur la carte.",
     src: "https://baguskafe.fr/carte" },
-  { id: "alep", name: "My Sweet Alep", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "snack", seat: "out", price: "€", hours: "Lun–sam 11h30–15h et 18h–21h", midi: true, soir: true,
+  { id: "alep", name: "My Sweet Alep", town: "Hyères", zone: "hyeres", level: "l2", type: "snack", seat: "out", price: "€", hours: "Lun–sam 11h30–15h et 18h–21h", midi: true, soir: true,
     dishes: [{ n: "Wrap ou box falafel" }, { n: "Taboulé" }, { n: "Houmous" }, { n: "Baba ganoush" }],
     tags: ["Syrien-libanais", "À emporter"], tel: "06 44 02 92 80",
     note: "Lun–sam 11h30–15h et 18h–21h, place Clemenceau.",
     src: "https://www.happycow.net/europe/france/hyeres/print" },
 
-  { id: "president", name: "Le Président", town: "La Londe-les-Maures", zone: "bormes", mB: 12, mG: 45, level: "l2", type: "resto", seat: "in", price: "€€", hours: null, midi: null, soir: null,
+  { id: "president", name: "Le Président", town: "La Londe-les-Maures", zone: "bormes", level: "l2", type: "resto", seat: "in", price: "€€", hours: null, midi: null, soir: null,
     dishes: [{ n: "Linguine alle verdure", d: "Légumes croquants, jeunes pousses, lait de coco, huile de coriandre", p: "18 €" }],
     tags: ["Brasserie"], tel: "Voir le site",
-    note: "Trop loin pour Garéoult avec un maximum de 40 min.",
+    note: "Marqué « vegan friendly » sur la carte.",
     src: "https://restaurant-lepresident-lalonde.com/carte" },
-  { id: "favouille", name: "La Favouille", town: "Le Lavandou", zone: "bormes", mB: 7, mG: 60, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mar–dim 12h–15h et 19h–23h30", midi: true, soir: true,
+  { id: "favouille", name: "La Favouille", town: "Le Lavandou", zone: "bormes", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mar–dim 12h–15h et 19h–23h30", midi: true, soir: true,
     dishes: [{ n: "Deux plats de pâtes vegan" }, { n: "Fleurs de courgette frites" }, { n: "Salades" }],
     tags: ["Italien", "Terrasse"], tel: "04 94 71 34 29",
     note: "Vegan indiqué sur la carte.",
     src: "https://www.happycow.net/europe/france/le_lavandou/print" },
-  { id: "esprit", name: "Esprit Sushi", town: "Brignoles", zone: "gareoult", mB: 65, mG: 20, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Lun–sam 9h30–14h et 18h–22h", midi: true, soir: true,
+  { id: "esprit", name: "Esprit Sushi", town: "Brignoles", zone: "gareoult", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Lun–sam 9h30–14h et 18h–22h", midi: true, soir: true,
     dishes: [{ n: "Gyozas vegan" }, { n: "Sushis vegan" }, { n: "Poké vegan" }],
     tags: ["Japonais", "Terrasse"], tel: "04 94 78 00 58",
-    note: "Après Garéoult : seulement si c'est la personne de Bormes qui se déplace.",
+    note: "99 av. Saint-Jean.",
     src: "https://www.happycow.net/europe/france/brignoles/print" },
 
   // --- La Garde et La Valette (compléments) ---
-  { id: "subway", name: "Subway", town: "La Valette-du-Var (Grand Var)", zone: "garde", mB: 30, mG: 33, level: "l2", type: "snack", seat: "in", price: "€", hours: "Tous les jours 10h30–22h", midi: true, soir: true,
+  { id: "subway", name: "Subway", town: "La Valette-du-Var (Grand Var)", zone: "garde", level: "l2", type: "snack", seat: "in", price: "€", hours: "Tous les jours 10h30–22h", midi: true, soir: true,
     dishes: [
       { n: "Sub galette de légumes 15 cm", d: "Galette annoncée « 100 % vegan » par la chaîne", p: "8,50 €" },
       { n: "Sub galette de légumes 30 cm", p: "12 €" },
@@ -556,31 +564,31 @@ const PLACES = [
     tags: ["Sandwichs", "Chaîne"], tel: "Av. de l'Université",
     note: "Centre commercial Grand Var.",
     src: "https://www.ubereats.com/fr-en/store/subway-grand-var/5GPdZ5IeVzi-JOrARX1YLA" },
-  { id: "easysushi", name: "Easy Sushi", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l3", type: "snack", seat: "in", price: "€", hours: "Lun–sam 11h30–13h45 et 17h–22h, dim soir", midi: true, soir: true,
+  { id: "easysushi", name: "Easy Sushi", town: "La Valette-du-Var", zone: "garde", level: "l3", type: "snack", seat: "in", price: "€", hours: "Lun–sam 11h30–13h45 et 17h–22h, dim soir", midi: true, soir: true,
     dishes: [{ n: "Maki avocat (6)", p: "5,20 €" }, { n: "Maki concombre" }, { n: "Edamame" }],
     ask: "Leur grille d'allergènes ne montre ni lait, ni œuf, ni poisson pour ces makis. Pas de version « cheese » ni de spicy mayo.",
     tags: ["Sushi", "Livraison"], tel: "04 94 21 93 28",
     note: "114 av. Gabriel Péri. Repas léger.",
     src: "https://www.easysushi.fr/pdf/ALLERGENES-EASY-SUSHI-2025.pdf" },
-  { id: "bk", name: "Burger King", town: "La Garde (ZAC Saint-Michel)", zone: "garde", mB: 30, mG: 34, level: "l3", sure: false, type: "snack", seat: "both", price: "€", hours: "Tous les jours, tard le soir", midi: true, soir: true,
+  { id: "bk", name: "Burger King", town: "La Garde (ZAC Saint-Michel)", zone: "garde", level: "l3", sure: false, type: "snack", seat: "both", price: "€", hours: "Tous les jours, tard le soir", midi: true, soir: true,
     dishes: [{ n: "Veggie Whopper sans sauce", d: "Haché végétal, tomate, salade, oignons, cornichons, ketchup" }],
     ask: "La sauce contient de l'œuf : prenez-le sans sauce. Le haché cuit sur le même grill que le bœuf.",
     tags: ["Fast-food", "Drive"], tel: "04 22 07 01 04",
     note: "Les Veggie Steakhouse et Veggie Chicken ne sont pas vegan.",
     src: "https://www.burgerking.fr/produit/veggie-whoppe" },
-  { id: "breakinval", name: "Break'in Bowl", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: null, midi: null, soir: null,
+  { id: "breakinval", name: "Break'in Bowl", town: "La Valette-du-Var", zone: "garde", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: null, midi: null, soir: null,
     dishes: [{ n: "Bowl vegan ou bowl à composer", d: "Houmous, avocat, légumes" }],
     ask: "Infos vegan venant de l'adresse de Toulon (même franchise). Sans œuf mollet ni spicy mayo.",
     tags: ["Poké", "Livraison"], tel: "04 94 33 58 80",
     note: "56 av. François Fabié.",
     src: "https://www.happycow.net/reviews/breakin-bowl-toulon-213662" },
-  { id: "kaiko", name: "KAIKO", town: "La Valette-du-Var", zone: "garde", mB: 30, mG: 33, level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun soir, mar–sam 10h45–13h45 et 18h–21h45", midi: true, soir: true,
+  { id: "kaiko", name: "KAIKO", town: "La Valette-du-Var", zone: "garde", level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun soir, mar–sam 10h45–13h45 et 18h–21h45", midi: true, soir: true,
     dishes: [{ n: "Nems aux légumes (4)", d: "Carotte, oignon, champignon, vermicelle", p: "7 €" }],
     ask: "Sans œuf dans la farce ni nuoc-mâm. Demandez ce qui se fait au tofu.",
     tags: ["Vietnamien", "Japonais"], tel: "04 22 44 08 08",
     note: "8 av. du Docteur Trémolières.",
     src: "https://www.tripadvisor.fr/Restaurant_Review-g1080055-d23579938-Reviews-KAIKO-La_Valette_du_Var_French_Riviera_Cote_d_Azur_Provence_Alpes_Cote_d_Azur.html" },
-  { id: "lougardo", name: "Lou Gardo Pizza", town: "La Garde", zone: "garde", mB: 30, mG: 34, level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun–ven 10h–14h, mar–dim 18h–22h", midi: true, soir: true,
+  { id: "lougardo", name: "Lou Gardo Pizza", town: "La Garde", zone: "garde", level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun–ven 10h–14h, mar–dim 18h–22h", midi: true, soir: true,
     dishes: [{ n: "Pizza Forestière sans fromage", d: "Tomate, champignons, olives", p: "9,90 €" }],
     ask: "Sans mozzarella ni emmental. Vérifiez la pâte.",
     tags: ["Pizzeria", "Camion à La Valette"], tel: "04 94 91 50 08",
@@ -588,7 +596,7 @@ const PLACES = [
     src: "https://www.lougardopizza.fr/nos-pizzas.html" },
 
   // --- Zone du milieu ---
-  { id: "danang", name: "Danang", town: "Cuers", zone: "cuers", mB: 32, mG: 22, level: "l3", type: "resto", seat: "in", price: "€", hours: "Lun–sam 11h30–14h30 et 18h30–22h", midi: true, soir: true,
+  { id: "danang", name: "Danang", town: "Cuers", zone: "cuers", level: "l3", type: "resto", seat: "in", price: "€", hours: "Lun–sam 11h30–14h30 et 18h30–22h", midi: true, soir: true,
     dishes: [
       { n: "Wok à composer au tofu", d: "Vermicelles, riz ou nouilles, sauce soja, curry ou pimentée", p: "13,90 €" },
       { n: "Bò bún au tofu", d: "Avec les nems végé, ou sans nems", p: "13,90 €" },
@@ -600,13 +608,13 @@ const PLACES = [
     tags: ["Vietnamien", "Sushi", "À emporter"], tel: "04 94 57 22 95",
     note: "26 allée des Seringats. Tofu affiché sur la carte officielle.",
     src: "https://restaurant-danang.order.app.hd.digital/menus/specialites" },
-  { id: "lingousto", name: "Le Mas du Lingousto", town: "Cuers", zone: "cuers", mB: 33, mG: 22, level: "l2", sure: false, type: "resto", seat: "both", price: "€€€", hours: "Midi et soir, jours à vérifier", midi: true, soir: true,
+  { id: "lingousto", name: "Le Mas du Lingousto", town: "Cuers", zone: "cuers", level: "l2", sure: false, type: "resto", seat: "both", price: "€€€", hours: "Midi et soir, jours à vérifier", midi: true, soir: true,
     dishes: [{ n: "Plat végétal-vegan, suggestion du jour", p: "23 €" }],
     ask: "Rubrique « Plat végétal – végan » sur la carte TheFork de 2024. Le chef a changé depuis : confirmez en réservant.",
     tags: ["Gastronomique", "Terrasse", "Parc"], tel: "04 94 28 69 10",
     note: "934 av. Eugénie et Henri Majastre.",
     src: "https://www.thefork.com/restaurant/le-mas-du-lingousto-r462691/menu" },
-  { id: "pietra", name: "Pietra Foci", town: "Cuers (aussi Pierrefeu, Rocbaron, Garéoult)", zone: "cuers", mB: 32, mG: 22, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Lun–sam midi et soir, dim soir", midi: true, soir: true,
+  { id: "pietra", name: "Pietra Foci", town: "Cuers (aussi Pierrefeu, Rocbaron, Garéoult)", zone: "cuers", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Lun–sam midi et soir, dim soir", midi: true, soir: true,
     dishes: [
       { n: "Burger au steak VG cœur d'avocat", d: "À la place de la viande, sans supplément" },
       { n: "Pizza végétarienne sans fromage", p: "≈ 10,90 €" },
@@ -616,7 +624,7 @@ const PLACES = [
     tags: ["Burgers", "Pizzas", "4 adresses"], tel: "04 22 60 00 36",
     note: "79 rue Marc Chagall à Cuers. Aussi à Pierrefeu, au Fray Redon (Rocbaron) et à Garéoult.",
     src: "https://pietrafocirestaurant.com/wp-content/uploads/2025/10/PF2025SepUnique.pdf" },
-  { id: "esushi", name: "E-Sushi", town: "Rocbaron (Fray Redon)", zone: "gareoult", mB: 40, mG: 8, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 17h–22h", midi: false, soir: true,
+  { id: "esushi", name: "E-Sushi", town: "Rocbaron (Fray Redon)", zone: "gareoult", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: "Tous les jours 17h–22h", midi: false, soir: true,
     dishes: [
       { n: "Maki avocat", p: "5,80 €" },
       { n: "Maki concombre", p: "5,40 €" },
@@ -627,7 +635,7 @@ const PLACES = [
     tags: ["Sushi", "Livraison", "Le soir"], tel: "09 84 21 96 02",
     note: "ZAC du Fray Redon. Livre aussi à Garéoult.",
     src: "https://app.eatself.com/2449/carte/95" },
-  { id: "espritroc", name: "Esprit Sushi", town: "Rocbaron (Fray Redon)", zone: "gareoult", mB: 40, mG: 8, level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: null, midi: null, soir: null,
+  { id: "espritroc", name: "Esprit Sushi", town: "Rocbaron (Fray Redon)", zone: "gareoult", level: "l3", sure: false, type: "snack", seat: "in", price: "€", hours: null, midi: null, soir: null,
     dishes: [
       { n: "Menu végétarien", d: "Makis, californias et springrolls aux légumes", p: "13,90 €" },
       { n: "Poke bowl au tofu frit", p: "14,90 €" },
@@ -639,7 +647,7 @@ const PLACES = [
     src: "https://esprit-sushi.fr/les-menus/21-menu-vegetarien.html" },
 
   // --- Hyères et Carqueiranne ---
-  { id: "jardinhy", name: "Le Jardin", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Tous les jours 12h–15h et 19h–22h", midi: true, soir: true,
+  { id: "jardinhy", name: "Le Jardin", town: "Hyères", zone: "hyeres", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Tous les jours 12h–15h et 19h–22h", midi: true, soir: true,
     dishes: [
       { n: "Plat vegan", d: "Sucrines braisées, champignons en persillade, crème végétale ail-citron", p: "18,20 €" },
       { n: "Panna cotta vegan", d: "Lait de coco, fruits de saison", p: "8,50 €" },
@@ -649,7 +657,7 @@ const PLACES = [
     tags: ["Jardin ombragé", "Maître restaurateur"], tel: "04 94 35 24 12",
     note: "19 av. Joseph Clotis. Personnel au fait du vegan selon les avis.",
     src: "https://lejardin-hyeres.fr/" },
-  { id: "folius", name: "Maison Folius", town: "Carqueiranne", zone: "hyeres", mB: 30, mG: 42, level: "l1", type: "snack", seat: "in", price: "€€", hours: "Tous les jours 10h–19h", midi: true, soir: false,
+  { id: "folius", name: "Maison Folius", town: "Carqueiranne", zone: "hyeres", level: "l1", type: "snack", seat: "in", price: "€€", hours: "Tous les jours 10h–19h", midi: true, soir: false,
     dishes: [
       { n: "Pâtisseries de la carte d'automne", d: "Tout est vegan, sans gluten, sans sucre raffiné" },
       { n: "Glaces vegan", p: "6,80 € / 9 €" },
@@ -659,7 +667,7 @@ const PLACES = [
     tags: ["Pâtisserie", "100 % vegan", "Livraison"], tel: "06 24 75 40 30",
     note: "52 av. du Général de Gaulle. Plutôt pour le dessert ou le goûter.",
     src: "https://www.maisonfolius.com/" },
-  { id: "tajmahal", name: "Taj Mahal", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Mar–dim 12h–14h30 et 19h–23h", midi: true, soir: true,
+  { id: "tajmahal", name: "Taj Mahal", town: "Hyères", zone: "hyeres", level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Mar–dim 12h–14h30 et 19h–23h", midi: true, soir: true,
     dishes: [
       { n: "Dal tadka", d: "Curry de lentilles jaunes", p: "9 €" },
       { n: "Baigan bharta", d: "Aubergine grillée écrasée", p: "9 €" },
@@ -671,19 +679,19 @@ const PLACES = [
     tags: ["Indien", "Livraison"], tel: "04 83 99 14 04",
     note: "8 cours de Strasbourg.",
     src: "https://www.restaurant-taj-mahal.com/carte-principale-taj-mahal-restaurant-indien-hyeres-var.html" },
-  { id: "supergusto", name: "Supergusto", town: "Hyères", zone: "hyeres", mB: 25, mG: 38, level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Mar–sam midi et soir, dim soir", midi: true, soir: true,
+  { id: "supergusto", name: "Supergusto", town: "Hyères", zone: "hyeres", level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Mar–sam midi et soir, dim soir", midi: true, soir: true,
     dishes: [{ n: "Pizza ou salade à composer", d: "Une cinquantaine d'ingrédients au choix" }],
     ask: "Sans fromage ni produit animal.",
     tags: ["Italien", "Trattoria"], tel: "04 83 57 97 42",
     note: "24 av. Gambetta.",
     src: "https://www.thefork.com/restaurant/supergusto-r583895" },
-  { id: "knowwhere", name: "Know Where", town: "Hyères (La Capte)", zone: "hyeres", mB: 28, mG: 42, level: "l2", sure: false, type: "snack", seat: "both", price: "€€", hours: "Saisonnier (fin février à début novembre)", midi: true, soir: true,
+  { id: "knowwhere", name: "Know Where", town: "Hyères (La Capte)", zone: "hyeres", level: "l2", sure: false, type: "snack", seat: "both", price: "€€", hours: "Saisonnier (fin février à début novembre)", midi: true, soir: true,
     dishes: [{ n: "Poke bowl au tofu", d: "Étiqueté « veggie »" }, { n: "Sushis à l'avocat" }],
     ask: "Le concept a peut-être changé (sushi) : confirmez sans mayo ni œuf.",
     tags: ["Bowls", "Sushi", "Saisonnier"], tel: "04 22 79 92 72",
     note: "15 rue des Marchands, La Capte.",
     src: "https://www.happycow.net/reviews/know-where-hyeres-167263" },
-  { id: "savage", name: "Savage Café", town: "Carqueiranne (aussi La Capte)", zone: "hyeres", mB: 30, mG: 42, level: "l3", sure: false, type: "snack", seat: "both", price: "€€", hours: "9h30–17h (fermé le mercredi à Carqueiranne)", midi: true, soir: false,
+  { id: "savage", name: "Savage Café", town: "Carqueiranne (aussi La Capte)", zone: "hyeres", level: "l3", sure: false, type: "snack", seat: "both", price: "€€", hours: "9h30–17h (fermé le mercredi à Carqueiranne)", midi: true, soir: false,
     dishes: [{ n: "Gâteaux vegan", d: "Carrot cake, cakes" }, { n: "Avocado toast sans œuf" }, { n: "Pancakes vegan sans gluten" }],
     ask: "Prévenez à la réservation que c'est vegan : les avis sont mitigés.",
     tags: ["Brunch", "Café"], tel: "06 12 74 90 42",
@@ -691,12 +699,12 @@ const PLACES = [
     src: "https://www.happycow.net/reviews/savage-cafe-carqueiranne-358273" },
 
   // --- Toulon ---
-  { id: "cade", name: "La Fabrique de Cade", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l1", type: "pouce", seat: "none", price: "€", hours: "Mar–dim 9h–13h (oct.–avr.), 7j/7 en saison", midi: true, soir: false,
+  { id: "cade", name: "La Fabrique de Cade", town: "Toulon (centre)", zone: "toulon", level: "l1", type: "pouce", seat: "none", price: "€", hours: "Mar–dim 9h–13h (oct.–avr.), 7j/7 en saison", midi: true, soir: false,
     dishes: [{ n: "Cade", d: "Galette de pois chiches, huile d'olive, sel", p: "jusqu'à 8 €" }],
     tags: ["Spécialité toulonnaise", "À emporter"], tel: "07 62 69 45 62",
     note: "98 cours Lafayette. Un en-cas plutôt qu'un repas.",
     src: "https://www.provencemed.com/en/activities/wood-fired-cade-7461495" },
-  { id: "breakintln", name: "Break'in Bowl", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "snack", seat: "in", price: "€", hours: "Lun–sam 11h–14h et 18h–22h, dim soir", midi: true, soir: true,
+  { id: "breakintln", name: "Break'in Bowl", town: "Toulon (centre)", zone: "toulon", level: "l2", type: "snack", seat: "in", price: "€", hours: "Lun–sam 11h–14h et 18h–22h, dim soir", midi: true, soir: true,
     dishes: [
       { n: "Veggie bowl", d: "Riz, houmous maison, avocat, edamame, chou rouge, carottes", p: "11,90 €" },
       { n: "Bowl à composer", p: "13,90 €" }
@@ -705,13 +713,13 @@ const PLACES = [
     tags: ["Poké", "Livraison"], tel: "06 51 52 45 02",
     note: "46 av. Maréchal de Lattre de Tassigny.",
     src: "https://www.ubereats.com/fr-en/store/breakin-bowl-toulon/sabDaHpcTwqnJwDeU6_RoQ" },
-  { id: "feelfood", name: "Feel Food", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mer–ven midi et soir (variable)", midi: true, soir: true,
+  { id: "feelfood", name: "Feel Food", town: "Toulon (centre)", zone: "toulon", level: "l2", type: "resto", seat: "both", price: "€€", hours: "Mer–ven midi et soir (variable)", midi: true, soir: true,
     dishes: [],
     ask: "Un plat salé vegan et un dessert vegan sur la carte de la semaine (HappyCow) : demandez lequel.",
     tags: ["Méditerranéen", "Place Dame Sibille"], tel: "06 09 99 08 23",
     note: "10 rue du Bon Pasteur.",
     src: "https://www.thefork.com/restaurant/feel-food-r455313" },
-  { id: "santa", name: "Santa Rosalia", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l2", sure: false, type: "resto", seat: "in", price: "€€", hours: "Mer–sam midi, jeu–sam soir", midi: true, soir: true,
+  { id: "santa", name: "Santa Rosalia", town: "Toulon (centre)", zone: "toulon", level: "l2", sure: false, type: "resto", seat: "in", price: "€€", hours: "Mer–sam midi, jeu–sam soir", midi: true, soir: true,
     dishes: [
       { n: "Tostada de saison", d: "Aubergine fumée, tomatillos, poivron, cacahuètes", p: "14 €" },
       { n: "Totopos", d: "Chips maison et crème de légumes", p: "12 €" },
@@ -721,7 +729,7 @@ const PLACES = [
     tags: ["Mexicain", "Bio"], tel: "04 94 64 11 58",
     note: "36 rue Charles Poncy. Réservation conseillée.",
     src: "https://www.santa-rosalia.fr/menu/" },
-  { id: "banthai", name: "Banthai", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l3", sure: false, type: "resto", seat: "in", price: "€€", hours: "Mar–dim 11h30–14h et 18h30–22h", midi: true, soir: true,
+  { id: "banthai", name: "Banthai", town: "Toulon (centre)", zone: "toulon", level: "l3", sure: false, type: "resto", seat: "in", price: "€€", hours: "Mar–dim 11h30–14h et 18h30–22h", midi: true, soir: true,
     dishes: [
       { n: "Tofu frit au sésame", p: "9,90 €" },
       { n: "Curry vert ou panang au tofu", d: "Au lait de coco", p: "18,90 €" },
@@ -731,7 +739,7 @@ const PLACES = [
     tags: ["Thaï", "Près de la gare"], tel: "04 94 62 03 49",
     note: "10 bd de Tessé.",
     src: "https://ban-thai.fr" },
-  { id: "kfifen", name: "Kfifen Cœur du Liban", town: "Toulon (Haute Ville)", zone: "toulon", mB: 42, mG: 38, level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun–sam 12h–14h et 19h–22h30", midi: true, soir: true,
+  { id: "kfifen", name: "Kfifen Cœur du Liban", town: "Toulon (Haute Ville)", zone: "toulon", level: "l3", sure: false, type: "resto", seat: "in", price: "€", hours: "Lun–sam 12h–14h et 19h–22h30", midi: true, soir: true,
     dishes: [
       { n: "Falafels", p: "1,55 € pièce" },
       { n: "Moutabal d'aubergine ou de courgette", p: "4,80 €" },
@@ -741,7 +749,7 @@ const PLACES = [
     tags: ["Libanais", "Mezzés"], tel: "04 94 98 54 67",
     note: "28 rue Gimelli.",
     src: "https://www.ubereats.com/fr-en/store/kfifen-coeur-du-liban/4dDYh_KtTiOWyE_ywEGYhA" },
-  { id: "falafels", name: "Falafels Factory", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l3", type: "pouce", seat: "none", price: "€", hours: "Lun–sam midi seulement (11h45–14h30)", midi: true, soir: false,
+  { id: "falafels", name: "Falafels Factory", town: "Toulon (centre)", zone: "toulon", level: "l3", type: "pouce", seat: "none", price: "€", hours: "Lun–sam midi seulement (11h45–14h30)", midi: true, soir: false,
     dishes: [
       { n: "Sandwich falafels", d: "Sauce tahiné, houmous ou caviar d'aubergine" },
       { n: "Taboulé, fattouche" }
@@ -750,7 +758,7 @@ const PLACES = [
     tags: ["Libanais", "À emporter"], tel: "09 50 57 57 32",
     note: "Adresse à vérifier : rue Molière ou Halles de Toulon selon les sources.",
     src: "https://www.falafelsfactory.fr/" },
-  { id: "cotesushi", name: "Côté Sushi", town: "Toulon (centre)", zone: "toulon", mB: 42, mG: 38, level: "l3", sure: false, type: "resto", seat: "in", price: "€€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
+  { id: "cotesushi", name: "Côté Sushi", town: "Toulon (centre)", zone: "toulon", level: "l3", sure: false, type: "resto", seat: "in", price: "€€", hours: "Tous les jours, midi et soir", midi: true, soir: true,
     dishes: [
       { n: "Gyozas aux légumes", p: "5 € les 3" },
       { n: "Salade de wakamé", p: "4,90 €" },
@@ -763,15 +771,21 @@ const PLACES = [
     src: "https://cotesushi.com/carte" }
 ];
 
-const state = { zone: new Set(), level: new Set(), type: new Set(), q: "", sort: "fair", max: 40, excluded: new Set(), when: "", vegan: "", indoor: false, showRejected: false };
+// Minutes de route (mairie à mairie, OSRM / OpenStreetMap, sans trafic) depuis chaque commune du Var vers les villes des adresses
+const DESTS = ["Brignoles", "Carqueiranne", "Cuers", "Hyères", "La Garde", "La Londe-les-Maures", "La Valette-du-Var", "Le Lavandou", "Rocbaron", "Toulon"];
+const TRAVEL = {"Aiguines":[70,110,91,106,103,112,101,126,84,106],"Ampus":[65,88,69,84,81,90,79,100,77,85],"Artignosc-sur-Verdon":[61,106,83,102,99,108,97,122,75,102],"Artigues":[46,91,69,87,84,93,83,107,61,88],"Aups":[44,83,64,80,76,86,75,100,58,80],"Bagnols-en-Forêt":[53,76,57,72,69,79,68,88,65,73],"Bandol":[60,37,36,34,26,43,24,57,48,20],"Bargemon":[61,84,65,80,77,87,76,96,73,81],"Bargème":[84,107,88,104,100,110,99,119,96,104],"Barjols":[26,71,49,67,64,73,63,87,41,68],"Baudinard-sur-Verdon":[61,100,81,97,93,103,92,117,75,97],"Bauduen":[62,102,83,98,95,104,93,119,77,99],"Belgentier":[32,27,16,23,20,32,19,46,24,24],"Besse-sur-Issole":[18,40,21,37,33,43,32,57,15,37],"Bormes-les-Mimosas":[63,33,41,24,35,15,35,8,51,40],"Bras":[16,60,37,56,53,62,51,76,29,57],"Brenon":[88,111,92,107,104,114,103,123,100,108],"Brignoles":[0,49,26,45,42,51,40,65,18,46],"Brue-Auriac":[28,73,51,69,66,75,65,89,43,70],"Cabasse":[20,51,32,47,44,54,43,68,26,48],"Callas":[52,75,56,72,68,78,67,87,64,72],"Callian":[67,90,71,87,83,93,82,103,80,87],"Camps-la-Source":[9,43,21,39,36,45,35,59,13,40],"Carcès":[21,65,44,61,58,67,56,82,36,62],"Carnoules":[24,33,14,30,27,36,25,50,20,30],"Carqueiranne":[46,0,21,12,10,21,15,35,33,20],"Cavalaire-sur-Mer":[71,63,70,53,65,45,64,30,80,70],"Châteaudouble":[56,79,60,75,72,82,71,91,68,76],"Châteauvert":[18,63,40,59,56,65,54,79,32,59],"Châteauvieux":[94,117,98,113,110,119,108,128,106,114],"Claviers":[60,83,64,79,76,86,75,95,72,80],"Cogolin":[52,51,53,42,53,33,53,33,61,59],"Collobrières":[52,50,31,42,45,33,43,38,40,49],"Comps-sur-Artuby":[72,95,76,91,88,97,86,106,84,92],"Correns":[19,64,41,60,57,66,55,80,33,61],"Cotignac":[25,70,47,66,63,72,62,86,40,67],"Cuers":[25,24,0,21,17,29,16,43,13,21],"Draguignan":[45,68,49,65,61,71,60,80,58,65],"Entrecasteaux":[32,69,50,65,62,72,61,86,46,66],"Esparron-de-Pallières":[45,90,68,87,83,92,82,107,60,87],"Fayence":[66,89,70,85,82,92,81,101,78,86],"Figanières":[49,72,53,68,65,75,64,84,61,69],"Flassans-sur-Issole":[16,46,27,42,39,48,37,62,21,42],"Flayosc":[51,72,53,68,65,75,64,87,61,69],"Forcalqueiret":[12,37,15,34,31,39,29,54,7,34],"Fox-Amphoux":[38,83,60,79,76,85,75,99,52,80],"Fréjus":[47,70,51,66,63,73,62,73,59,67],"Garéoult":[17,38,15,34,31,40,30,54,8,35],"Gassin":[63,61,64,51,63,43,63,43,72,68],"Ginasservis":[52,97,74,93,90,99,88,113,66,94],"Gonfaron":[31,41,22,37,34,43,32,58,30,38],"Grimaud":[49,57,50,48,59,39,59,39,59,64],"Hyères":[43,11,19,0,13,11,13,25,31,18],"La Bastide":[84,107,88,103,100,110,99,119,96,104],"La Cadière-d'Azur":[58,38,36,35,27,44,25,57,49,20],"La Celle":[4,46,23,42,39,48,37,62,15,42],"La Crau":[38,15,13,10,9,20,10,33,26,16],"La Croix-Valmer":[64,62,65,53,64,44,64,39,73,69],"La Farlède":[36,16,11,13,9,21,8,35,23,13],"La Garde":[40,12,16,13,0,22,6,36,28,10],"La Garde-Freinet":[38,59,40,55,52,48,50,48,48,56],"La Londe-les-Maures":[50,20,28,11,22,0,22,16,38,27],"La Martre":[90,113,94,109,106,116,105,125,102,110],"La Motte":[38,61,42,57,54,63,52,72,50,58],"La Môle":[62,42,49,32,44,24,43,24,60,49],"La Roque-Esclapon":[84,107,88,103,100,110,99,119,96,104],"La Roquebrussanne":[15,43,20,39,36,45,35,59,14,40],"La Seyne-sur-Mer":[51,28,27,25,18,34,15,48,39,11],"La Valette-du-Var":[41,17,16,14,7,23,0,37,28,8],"La Verdière":[45,90,67,86,83,92,82,106,59,87],"Le Beausset":[53,40,39,37,29,46,27,60,45,23],"Le Bourguet":[87,109,91,106,103,112,101,121,99,106],"Le Cannet-des-Maures":[23,43,24,40,36,46,35,60,32,40],"Le Castellet":[55,42,41,39,31,48,29,62,47,24],"Le Lavandou":[64,34,42,25,36,16,36,0,52,41],"Le Luc":[25,47,28,43,40,50,39,64,30,44],"Le Muy":[35,58,39,54,51,61,50,70,47,55],"Le Plan-de-la-Tour":[48,68,49,59,61,50,60,50,57,65],"Le Pradet":[45,8,20,14,5,23,11,37,32,14],"Le Revest-les-Eaux":[49,25,24,23,16,32,11,45,37,12],"Le Thoronet":[30,52,33,48,45,55,44,69,41,49],"Le Val":[8,53,31,50,46,55,45,70,23,50],"Les Adrets-de-l'Estérel":[52,75,56,72,68,78,67,89,64,72],"Les Arcs":[37,58,39,54,51,60,49,75,47,55],"Les Mayons":[40,50,32,47,44,53,42,65,40,47],"Les Salles-sur-Verdon":[65,105,86,101,98,108,97,122,80,102],"Lorgues":[38,60,41,57,53,63,52,77,50,57],"Mazaugues":[18,51,29,48,44,53,43,68,22,48],"Moissac-Bellevue":[53,93,74,89,86,96,85,110,68,90],"Mons":[83,106,87,102,99,108,97,118,95,103],"Montauroux":[62,85,66,82,78,88,77,99,74,82],"Montferrat":[56,79,60,75,72,81,70,91,68,76],"Montfort-sur-Argens":[16,61,38,57,54,63,53,77,30,58],"Montmeyan":[44,89,67,85,82,91,81,105,59,86],"Méounes-lès-Montrieux":[23,35,22,32,28,40,27,54,16,32],"Nans-les-Pins":[26,69,46,65,62,71,61,85,39,59],"Néoules":[21,37,14,33,30,39,29,53,9,34],"Ollioules":[52,29,28,26,18,35,16,49,40,11],"Ollières":[22,67,45,63,60,69,59,83,37,64],"Pierrefeu-du-Var":[31,28,10,20,23,22,22,36,18,27],"Pignans":[30,35,16,31,28,38,27,52,24,32],"Plan-d'Aups-Sainte-Baume":[42,73,54,70,62,79,60,92,48,55],"Pontevès":[31,76,53,72,69,78,67,92,45,73],"Pourcieux":[24,69,46,65,62,71,60,85,38,65],"Pourrières":[25,70,48,67,63,72,62,87,40,67],"Puget-Ville":[30,30,10,27,24,32,22,47,11,27],"Puget-sur-Argens":[39,62,43,58,55,64,53,75,51,58],"Ramatuelle":[66,65,67,56,67,47,67,47,75,72],"Rayol-Canadel-sur-Mer":[78,49,57,40,51,31,51,17,67,57],"Rians":[38,83,61,80,76,85,75,99,53,80],"Riboux":[59,61,57,58,50,66,48,80,51,43],"Rocbaron":[17,35,13,32,28,37,27,52,0,32],"Roquebrune-sur-Argens":[40,63,44,60,56,66,55,74,53,60],"Rougiers":[19,62,39,58,55,64,54,78,32,59],"Régusse":[51,96,73,92,89,98,87,112,65,93],"Saint-Antonin-du-Var":[36,64,45,60,57,66,55,81,50,61],"Saint-Cyr-sur-Mer":[60,41,39,38,30,46,28,60,51,23],"Saint-Julien":[55,100,77,96,93,101,91,116,69,96],"Saint-Mandrier-sur-Mer":[63,40,38,37,29,46,27,59,51,22],"Saint-Martin-de-Pallières":[46,91,68,87,84,93,82,107,60,87],"Saint-Maximin-la-Sainte-Baume":[18,63,40,59,56,65,54,79,33,60],"Saint-Paul-en-Forêt":[56,78,60,75,72,81,70,90,68,75],"Saint-Raphaël":[49,72,53,68,65,75,64,75,61,69],"Saint-Tropez":[65,65,66,55,67,47,67,47,75,72],"Saint-Zacharie":[31,64,51,61,54,70,51,84,44,47],"Sainte-Anastasie-sur-Issole":[15,41,18,37,34,43,32,57,10,38],"Sainte-Maxime":[51,65,55,55,67,47,66,47,63,71],"Salernes":[44,75,56,71,68,78,67,92,58,72],"Sanary-sur-Mer":[55,31,30,28,21,37,19,51,42,14],"Seillans":[65,88,69,85,81,91,80,100,77,85],"Seillons-Source-d'Argens":[24,69,46,65,62,70,60,85,38,65],"Signes":[35,47,33,43,40,52,39,66,27,40],"Sillans-la-Cascade":[32,78,55,74,71,79,69,94,47,74],"Six-Fours-les-Plages":[54,31,29,28,20,37,18,50,42,13],"Solliès-Pont":[32,20,7,16,13,25,11,38,20,16],"Solliès-Toucas":[36,23,11,19,16,28,15,42,23,20],"Solliès-Ville":[37,19,12,15,12,24,10,38,25,16],"Tanneron":[71,94,75,90,87,97,86,108,83,91],"Taradeau":[35,56,37,52,49,58,47,73,45,53],"Tavernes":[33,78,55,74,71,80,70,94,48,75],"Toulon":[45,22,20,19,11,28,9,41,33,0],"Tourrettes":[65,88,69,84,81,91,80,100,77,85],"Tourtour":[57,79,60,75,72,82,71,96,68,76],"Tourves":[13,56,33,52,49,58,47,72,26,53],"Trans-en-Provence":[39,62,43,58,55,64,53,74,51,59],"Trigance":[84,107,88,103,100,110,99,119,96,104],"Varages":[39,84,61,80,77,86,75,100,53,81],"Vidauban":[30,50,31,46,43,52,41,67,39,47],"Villecroze":[46,74,55,70,67,77,66,91,61,71],"Vinon-sur-Verdon":[60,105,83,102,98,107,97,121,75,95],"Vins-sur-Caramy":[11,56,34,53,49,58,48,73,26,53],"Vérignon":[55,95,76,91,88,97,86,112,70,92],"Évenos":[56,34,33,31,24,40,21,54,45,17]};
+
+const state = { from: "Bormes-les-Mimosas", to: "Garéoult", zone: new Set(), level: new Set(), type: new Set(), q: "", sort: "fair", max: 40, excluded: new Set(), when: "", vegan: "", indoor: false, showRejected: false };
 try {
   const s = JSON.parse(localStorage.getItem("vegan-prefs") || "{}");
+  if (TRAVEL[s.from]) state.from = s.from;
+  if (TRAVEL[s.to]) state.to = s.to;
   if (s.sort) state.sort = s.sort;
   if (s.max) state.max = s.max;
   if (Array.isArray(s.excluded)) state.excluded = new Set(s.excluded);
 } catch (e) {}
 const save = () => {
-  try { localStorage.setItem("vegan-prefs", JSON.stringify({ sort: state.sort, max: state.max, excluded: [...state.excluded] })); } catch (e) {}
+  try { localStorage.setItem("vegan-prefs", JSON.stringify({ from: state.from, to: state.to, sort: state.sort, max: state.max, excluded: [...state.excluded] })); } catch (e) {}
 };
 
 // Validations « vegan oui / non » : partagées via la base de l'artefact, sinon gardées sur cet appareil
@@ -822,32 +836,45 @@ const setStoreNote = t => { const el = document.getElementById("storeNote"); if 
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const cityOf = p => p.town.split(" (")[0];
-const within = p => p.mB <= state.max && p.mG <= state.max;
-const fair = (a, b) => Math.abs(a.mB - a.mG) - Math.abs(b.mB - b.mG) || (a.mB + a.mG) - (b.mB + b.mG);
+const short = n => n.replace(/-(les|lès|sur|du|de|des|en|la|le)-.*$/, "");
+function applyRoute() {
+  PLACES.forEach(p => {
+    const i = DESTS.indexOf(cityOf(p));
+    p.mA = TRAVEL[state.from][i];
+    p.mB = TRAVEL[state.to][i];
+  });
+}
+applyRoute();
+const within = p => p.mA <= state.max && p.mB <= state.max;
+const fair = (a, b) => Math.abs(a.mA - a.mB) - Math.abs(b.mA - b.mB) || (a.mA + a.mB) - (b.mA + b.mB);
 const sorters = {
   fair,
-  total: (a, b) => (a.mB + a.mG) - (b.mB + b.mG) || fair(a, b),
+  total: (a, b) => (a.mA + a.mB) - (b.mA + b.mB) || fair(a, b),
   level: (a, b) => a.level.localeCompare(b.level) || b.dishes.length - a.dishes.length || fair(a, b)
 };
 
 // --- Graphique ---
-const W = 420, H = 300, PAD = { l: 44, r: 14, t: 14, b: 40 }, MAXM = 70;
+const W = 420, H = 300, PAD = { l: 44, r: 14, t: 14, b: 40 };
+let MAXM = 70;
 const sx = m => PAD.l + m / MAXM * (W - PAD.l - PAD.r);
 const sy = m => H - PAD.b - m / MAXM * (H - PAD.t - PAD.b);
-const TOWNS = (() => {
+function chartTowns() {
   const map = new Map();
   PLACES.forEach(p => {
-    const k = p.zone === "bormes" || p.zone === "gareoult" ? p.town : ZONES[p.zone];
-    if (!map.has(k)) map.set(k, { label: k, mB: p.mB, mG: p.mG, n: 0 });
+    const k = p.zone === "bormes" || p.zone === "gareoult" ? cityOf(p) : ZONES[p.zone];
+    if (!map.has(k)) map.set(k, { label: k, mA: p.mA, mB: p.mB, n: 0 });
     map.get(k).n++;
   });
   return [...map.values()];
-})();
+}
 const LABEL_POS = { "Cuers": [10, -8], "La Garde · La Valette": [12, 4], "Hyères": [-10, -6, "end"], "Toulon": [12, 4] };
 
 function drawChart() {
+  const towns = chartTowns();
+  MAXM = Math.max(70, state.max, ...towns.map(t => Math.ceil(Math.max(t.mA, t.mB) / 10) * 10));
+  const step = MAXM > 100 ? 20 : 10;
   let g = "";
-  [0, 10, 20, 30, 40, 50, 60, 70].forEach(t => {
+  Array.from({ length: Math.floor(MAXM / step) + 1 }, (_, i) => i * step).forEach(t => {
     g += `<line class="grid" x1="${sx(t)}" x2="${sx(t)}" y1="${sy(0)}" y2="${sy(MAXM)}"/>`;
     g += `<line class="grid" x1="${sx(0)}" x2="${sx(MAXM)}" y1="${sy(t)}" y2="${sy(t)}"/>`;
     g += `<text x="${sx(t)}" y="${H - PAD.b + 16}" text-anchor="middle">${t}</text>`;
@@ -855,16 +882,16 @@ function drawChart() {
   });
   g += `<rect class="zone" x="${sx(0)}" y="${sy(state.max)}" width="${sx(state.max) - sx(0)}" height="${sy(0) - sy(state.max)}" rx="4"/>`;
   g += `<line class="axis" x1="${sx(0)}" x2="${sx(MAXM)}" y1="${sy(0)}" y2="${sy(0)}"/><line class="axis" x1="${sx(0)}" x2="${sx(0)}" y1="${sy(0)}" y2="${sy(MAXM)}"/>`;
-  g += `<text x="${(sx(0) + sx(MAXM)) / 2}" y="${H - 6}" text-anchor="middle">min depuis Bormes</text>`;
-  g += `<text transform="translate(12 ${(sy(0) + sy(MAXM)) / 2}) rotate(-90)" text-anchor="middle">min depuis Garéoult</text>`;
-  TOWNS.forEach(t => {
-    const on = t.mB <= state.max && t.mG <= state.max;
-    g += `<circle class="dot ${on ? "on" : "off"}" cx="${sx(t.mB)}" cy="${sy(t.mG)}" r="${5 + Math.min(t.n, 6)}"><title>${esc(t.label)} : ${t.mB} min / ${t.mG} min, ${t.n} adresse(s)</title></circle>`;
+  g += `<text x="${(sx(0) + sx(MAXM)) / 2}" y="${H - 6}" text-anchor="middle">min depuis ${esc(short(state.from))}</text>`;
+  g += `<text transform="translate(12 ${(sy(0) + sy(MAXM)) / 2}) rotate(-90)" text-anchor="middle">min depuis ${esc(short(state.to))}</text>`;
+  towns.forEach(t => {
+    const on = t.mA <= state.max && t.mB <= state.max;
+    g += `<circle class="dot ${on ? "on" : "off"}" cx="${sx(t.mA)}" cy="${sy(t.mB)}" r="${5 + Math.min(t.n, 6)}"><title>${esc(t.label)} : ${t.mA} min / ${t.mB} min, ${t.n} adresse(s)</title></circle>`;
     const [dx, dy, anchor] = LABEL_POS[t.label] || [10, 4];
-    if (on) g += `<text class="lbl" x="${sx(t.mB) + dx}" y="${sy(t.mG) + dy}" text-anchor="${anchor || "start"}">${esc(t.label)}</text>`;
+    if (on) g += `<text class="lbl" x="${sx(t.mA) + dx}" y="${sy(t.mB) + dy}" text-anchor="${anchor || "start"}">${esc(t.label)}</text>`;
   });
   document.getElementById("chart").innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Temps de trajet depuis Bormes et depuis Garéoult pour chaque ville">${g}</svg>`;
+    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Temps de trajet depuis les deux points de départ pour chaque ville">${g}</svg>`;
 }
 
 // --- Filtres ---
@@ -943,10 +970,10 @@ function card(p, isPicked) {
       <div><h3>${esc(p.name)}</h3><div class="where">${esc(p.town)} <span class="nowrap">· ${esc(TYPES[p.type])} · ${esc(p.price)}</span></div><div class="where"><strong>${esc(SEATS[p.seat] || "")}</strong></div></div>
       <span class="level ${p.level}">${esc(LEVELS[p.level])}</span>
     </div>
-    <div class="route-mini" aria-label="${p.mB} minutes depuis Bormes, ${p.mG} minutes depuis Garéoult">
-      <span class="end"><small>Bormes</small><b>${p.mB} min</b></span>
-      <span class="track-mini"><i style="left:${Math.round(p.mB / (p.mB + p.mG) * 100)}%"></i></span>
-      <span class="end right"><small>Garéoult</small><b>${p.mG} min</b></span>
+    <div class="route-mini" aria-label="${p.mA} minutes depuis ${esc(state.from)}, ${p.mB} minutes depuis ${esc(state.to)}">
+      <span class="end"><small>${esc(short(state.from))}</small><b>${p.mA} min</b></span>
+      <span class="track-mini"><i style="left:${Math.round(p.mA / ((p.mA + p.mB) || 1) * 100)}%"></i></span>
+      <span class="end right"><small>${esc(short(state.to))}</small><b>${p.mB} min</b></span>
     </div>
     <p class="hours${p.hours ? "" : " unknown"}"><strong>Horaires :</strong> ${p.hours ? esc(p.hours) : "à vérifier"}${p.soir === false ? " · <strong>fermé le soir</strong>" : ""}${p.midi === false ? " · <strong>fermé le midi</strong>" : ""}</p>
     ${dishes ? `<ul class="dishes">${dishes}</ul>` : ""}
@@ -974,7 +1001,7 @@ function render() {
   const list = filtered();
   const sel = new Set(picked().map(p => p.id));
   document.getElementById("cards").innerHTML = list.length ? list.map(p => card(p, sel.has(p.id))).join("")
-    : `<div class="empty">Aucune adresse ne correspond. Retirez un filtre ou augmentez le temps de trajet.</div>`;
+    : `<div class="empty">Aucune adresse à cette distance. Augmentez le trajet max ou retirez un filtre : la liste couvre surtout l'ouest et le sud du Var.</div>`;
   const hidden = PLACES.filter(p => !within(p)).length;
   document.getElementById("count").innerHTML =
     `<strong>${list.length}</strong> adresse${list.length > 1 ? "s" : ""} à ${state.max} min max pour chacun` +
@@ -1054,7 +1081,7 @@ function placeBlock(ctx, p, x, y, w, draw) {
   ctx.font = F.city;
   let cx = x + CARD_PAD + ctx.measureText(city).width + 20, row = 0;
   ctx.font = F.chip;
-  const chips = [`Bormes ${p.mB} min`, `Garéoult ${p.mG} min`, SEATS[p.seat]].filter(Boolean).map(t => {
+  const chips = [`${short(state.from)} ${p.mA} min`, `${short(state.to)} ${p.mB} min`, SEATS[p.seat]].filter(Boolean).map(t => {
     const tw = ctx.measureText(t).width + 26;
     if (cx + tw > x + w - CARD_PAD) { row++; cx = x + CARD_PAD; }
     const chip = { t, tw, cx, cy: cyMeta + row * 46 };
@@ -1149,7 +1176,7 @@ async function drawFlyer() {
   ctx.font = `700 76px ${DF}`;
   const tLines = wrap(ctx, title, FW - M * 2 - 140).slice(0, 2);
   ctx.font = `400 29px ${BF}`;
-  const subLines = wrap(ctx, [`Entre Bormes et Garéoult · ${state.max} min de route max pour chacun`, activeFilters()].filter(Boolean).join(" · "), FW - M * 2);
+  const subLines = wrap(ctx, [`Entre ${short(state.from)} et ${short(state.to)} · ${state.max} min de route max pour chacun`, activeFilters()].filter(Boolean).join(" · "), FW - M * 2);
   const headH = 150 + tLines.length * 84 + 30 + subLines.length * 40;
   const cardW = FW - M * 2;
   const heights = items.map(p => placeBlock(ctx, p, M, 0, cardW, false));
@@ -1259,6 +1286,12 @@ document.getElementById("copyImg").addEventListener("click", async () => {
 buildPills("zone", ZONES);
 buildPills("level", LEVELS);
 buildPills("type", TYPES);
+[["fromA", "from"], ["fromB", "to"]].forEach(([id, key]) => {
+  const sel = document.getElementById(id);
+  sel.innerHTML = Object.keys(TRAVEL).map(n => `<option>${esc(n)}</option>`).join("");
+  sel.value = state[key];
+  sel.addEventListener("change", e => { state[key] = e.target.value; applyRoute(); save(); render(); });
+});
 const maxIn = document.getElementById("max"), maxOut = document.getElementById("maxOut");
 maxIn.value = state.max; maxOut.textContent = state.max + " min";
 maxIn.addEventListener("input", e => { state.max = +e.target.value; maxOut.textContent = state.max + " min"; save(); render(); });
